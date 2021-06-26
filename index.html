@@ -4,65 +4,69 @@
 <!--<![endif]-->
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width" />
-<title>Planetary Orbits in Javascript | N-body Physics</title>
+<title>Planetary Orbits in Javascript</title>
 <head>
 	<link rel="stylesheet" href="pq.css">
 	
 	  
 </head>
 <body>
-	<select> Choose file: 
-		<option value="star1"> 1 </option>
-		<option value="star2"> 2 </option>
-	</select>
+	
 	<!-- <script src="../p5.min.js"></script> -->
+	<h1> PlanetQuest Orbit Visualizer </h1> 
+	
 	<form name="firstForm" id="firstForm">
-		<label for="sm">Star Mass (kg): </label>
-		<input type="number" id="sm" min="0" max="10" value="1">
+		
 		<label for="p_num">  Number of Planets: </label>
-		<select id="p_num">
+		<select id="p_num" onchange="MyFunction()">
 			<option> 1 </option>
 			<option> 2 </option>
 			<option> 3 </option>
 			<option> 4 </option>
 		</select>
-		<script> p_num </script>
+		<!-- <script> p_num </script> -->
+		&nbsp  &nbsp
+		<label for="sm">Star Mass (The Sun=1): </label>
+		<input type="number" id="sm" style="width: 6em" value="1.0" required>
+	
 	</form>
 	
 	<form name="secondForm" id="secondForm">
 		
-		<p>Planet 1 (longest period):
-		<label for="ecc">      Eccentricity: </label>
-		<input type="number" id="ecc" size="4" value="0.01">
-		<label for="oP">Period (days): </label>
-		<input type="number" id="oP" size="6" value="2100">
-		<label for="w">Angle: </label>
-		<input type="number" id="w" size="4" value="0"></p>
+		<p> <b>Planet 1</b> (longest period) &nbsp
+	    <label for="ecc">  Eccentricity:</label>
+		<input type="number" style="width: 6em"  id="ecc" value="0.093">
+		<label for="oP">&nbsp Period (days): </label>
+		<input type="number" id="oP" style="width: 6em" value="687">
+		<label for="w">&nbsp Angle: </label>
+		<input type="number" id="w" style="width: 6em" value="0"></p>
 		
-		<p>Planet 2 (next longest period):
+		<p><b>Planet 2</b> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
 		<label for="ecc_p2">Eccentricity: </label>
-		<input type="number" id="ecc_p2" size="4" value="0.08">
+		<input type="number" id="ecc_p2" style="width: 6em" value="0.017">
 		<label for="oP_p2">Period (days): </label>
-		<input type="number" id="oP_p2" size="6" value="630">
+		<input type="number" id="oP_p2" style="width: 6em" value="365">
 		<label for="w_p2">Angle: </label>
-		<input type="number" id="w_p2" size="4" value="1"></p>
+		<input type="number" id="w_p2" style="width: 6em" value="129"></p>
 	
-		<p> Planet 3 (next longest period)
+		<p> <b>Planet 3</b> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
 		<label for="ecc_p3">Eccentricity: </label>
-		<input type="number" id="ecc_p3" size="4" value="0.02">
+		<input type="number" id="ecc_p3" style="width: 6em" value="0.007">
 		<label for="oP_p3">Period (days): </label>
-		<input type="number" id="oP_p3" size="6" value="365">
+		<input type="number" id="oP_p3" style="width: 6em" value="227">
 		<label for="w_p3">Angle: </label>
-		<input type="number" id="w_p3" size="4" value="2.5"></p>
+		<input type="number" id="w_p3" style="width: 6em" value="157"></p>
 
-		<p> Planet 4 (shortest period)
+		<p> <b>Planet 4</b> (shortest period) &nbsp
 		<label for="ecc_p4">Eccentricity: </label>
-		<input type="number" id="ecc_p4" size="4" value="0.04">
+		<input type="number" id="ecc_p4" style="width: 6em" value="0.206">
 		<label for="oP_p4">Period (days): </label>
-		<input type="number" id="oP_p4" size="6" value="220">
+		<input type="number" id="oP_p4" style="width: 6em" value="88">
 		<label for="w_p4">Angle: </label>
-		<input type="number" id="w_p4" size="4" value="1.3"></p>
-	
+		<input type="number" id="w_p4" style="width: 6em" value="103"></p>
+
+		<p id="check2"></p>
+
 		<input onclick="startNreset()" type="button" value="Start" id="start_reset_button">
 		<input onclick="pause()" type="button" value="Pause" id="pause_play_button">
 		
@@ -79,14 +83,67 @@
 				style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
 		</div>
 
-		<p id="semi_major_axis" style="margin-left:600px"></p>
-		<p id="check2"></p>
-		<p id="check3"></p>
-		<p id="check4"></p>
+	
 		<p id="time" style="margin-left:600px"></p>
 
 	</form>
-	<!-- script type="text/javascript" src="model_functions.js"></script>-->>
+
+	<script>
+		const input = document.querySelector("p_num");
+		input.addEventListener('input', myFunction);
+		
+		function myFunction() {
+			p_num = document.getElementById("p_num").value;
+			document.getElementById("check2").innerHTML = p_num;
+			//surrounding planets info
+			e_home = [0.093, 0.017, 0.007, 0.206];
+			op_home = [687, 365, 227, 88];
+			w_home = [0, 129, 157, 103];
+			for (i = 1; i <= p_num; i++) {
+				//Planet # 
+				var planet_num_label = document.createElement("LABEL");
+				planet_num_label.innerHTML = "<br /> Planet " + i + ": <br />"
+				//Eccentricity
+				var dom_e = document.createElement("INPUT");
+				dom_e.setAttribute("type", "text");
+				dom_e.setAttribute("id", "ecc"+i);
+				dom_e.setAttribute("size", "2");
+				dom_e.setAttribute("value", e_home[i-1]);
+				var dom_e_label = document.createElement("Label");
+				dom_e_label.innerHTML = "Eccentricity: ";
+				//Orbit period
+				var dom_op = document.createElement("INPUT");
+				dom_op.setAttribute("type", "text");
+				dom_op.setAttribute("id", "op"+i);
+				dom_op.setAttribute("size", "2");
+				dom_op.setAttribute("value", op_home[i-1]);
+				var dom_op_label = document.createElement("Label");
+				dom_op_label.innerHTML = "  Period (days): ";
+				//Angle
+				var dom_w = document.createElement("INPUT");
+				dom_w.setAttribute("type", "text");
+				dom_w.setAttribute("id", "w"+i);
+				dom_w.setAttribute("size", "2");
+				dom_w.setAttribute("value", w_home[i-1]);
+				var dom_w_label = document.createElement("Label");
+				dom_w_label.innerHTML = "  Angle: ";
+
+				document.form_1.appendChild(planet_num_label);
+				//Append eccentricity
+				document.form_1.appendChild(dom_e_label);
+				document.form_1.appendChild(dom_e);
+				//Append orbit period
+				document.form_1.appendChild(dom_op_label);
+				document.form_1.appendChild(dom_op);
+				//Append angle
+				document.form_1.appendChild(dom_w_label);
+				document.form_1.appendChild(dom_w);
+			}
+		}
+	</script>
+
+
+	<!-- script type="text/javascript" src="model_functions.js"></script>-->
 	<script type="text/javascript" id="sns_scripts">
 
 	var animate;
@@ -142,7 +199,7 @@
 		ctx1.clearRect(0, 0, b.width, b.height);
 		ctx1.beginPath();
 		animPaused = false;
-		document.getElementById("semi_major_axis").innerHTML = "";
+		//document.getElementById("semi_major_axis").innerHTML = "";
 		document.getElementById("time").innerHTML = "";
 	}
 
@@ -179,7 +236,7 @@
 		arg[1] = document.getElementById("w_p2").value;
 		arg[2] = document.getElementById("w_p3").value;
 		arg[3] = document.getElementById("w_p4").value;
-		document.getElementById("check3").innerHTML = e;
+		//document.getElementById("check3").innerHTML = e;
 		//come back and insert max eccentricity find
 		canvas = document.getElementById("animationLayer");	
 		base_canvas = document.getElementById("baseLayer");
@@ -273,7 +330,7 @@
 		//drawing axis
 			calculate_a_factor(ecc, oP);
             //account for an eccentricity < 0.1 (model will move out of frame if true)
-            document.getElementById("check2").innerHTML = aFactor;
+            //document.getElementById("check2").innerHTML = aFactor;
 			//document.getElementById("check2").innerHTML
 			if (aFactor < 62.5) {
 				var x_axis_starting_point = { number: 1, suffix: '' };
@@ -494,7 +551,7 @@
 			} else {
 				time = time + orbitPeriod[0]/400;
 			}
-			time1 = time % orbitPeriod[0];
+			time1 = Math.round(time % orbitPeriod[0]);
 			document.getElementById("time").innerHTML = "Time: " + time1 + " days";
 			document.getElementById("time").style.marginLeft = base_canvas.width + 15;
 			// animate

@@ -3,12 +3,12 @@
 }
 
 .container {
-  width: 100px;
+  width: 40px;
   clear: both;
 }
 
 .container input {
-  width: 100%;
+  width: 40px;
   clear: both;
 }
 
@@ -16,7 +16,8 @@ body {
   font-family: "Lucida Console","Courier New",monospace;
   background: #000000;
   color: #ecf0f1;
-  line-height: 1.618em;
+  line-height: 1.0em;
+  font-size: 75%;
 }
 .wrapper {
   max-width: 150rem;
