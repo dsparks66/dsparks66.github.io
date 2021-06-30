@@ -13,7 +13,7 @@
 <body>
 	
 	<!-- <script src="../p5.min.js"></script> -->
-	<h1> PlanetQuest Orbit Visualizer </h1> 
+	<h2> PlanetQuest Orbit Visualizer </h2> 
 	
 	<form name="firstForm" id="firstForm">
 		
@@ -27,7 +27,7 @@
 		<!-- <script> p_num </script> -->
 		&nbsp  &nbsp
 		<label for="sm">Star Mass (The Sun=1): </label>
-		<input type="number" id="sm" style="width: 6em" value="1.0" required>
+		<input type="number" id="sm" style="width: 6em" step="any" value="1.0" required>
 	
 	</form>
 	
@@ -38,7 +38,7 @@
 		<input type="number" style="width: 6em"  id="ecc" value="0.093">
 		<label for="oP">&nbsp Period (days): </label>
 		<input type="number" id="oP" style="width: 6em" value="687">
-		<label for="w">&nbsp Angle: </label>
+		<label for="w">&nbsp Periapsis Angle: </label>
 		<input type="number" id="w" style="width: 6em" value="0"></p>
 		
 		<p><b>Planet 2</b> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
@@ -46,7 +46,7 @@
 		<input type="number" id="ecc_p2" style="width: 6em" value="0.017">
 		<label for="oP_p2">Period (days): </label>
 		<input type="number" id="oP_p2" style="width: 6em" value="365">
-		<label for="w_p2">Angle: </label>
+		<label for="w_p2">Periapsis Angle: </label>
 		<input type="number" id="w_p2" style="width: 6em" value="129"></p>
 	
 		<p> <b>Planet 3</b> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
@@ -54,7 +54,7 @@
 		<input type="number" id="ecc_p3" style="width: 6em" value="0.007">
 		<label for="oP_p3">Period (days): </label>
 		<input type="number" id="oP_p3" style="width: 6em" value="227">
-		<label for="w_p3">Angle: </label>
+		<label for="w_p3">Periapsis Angle: </label>
 		<input type="number" id="w_p3" style="width: 6em" value="157"></p>
 
 		<p> <b>Planet 4</b> (shortest period) &nbsp
@@ -62,7 +62,7 @@
 		<input type="number" id="ecc_p4" style="width: 6em" value="0.206">
 		<label for="oP_p4">Period (days): </label>
 		<input type="number" id="oP_p4" style="width: 6em" value="88">
-		<label for="w_p4">Angle: </label>
+		<label for="w_p4">Periapsis Angle: </label>
 		<input type="number" id="w_p4" style="width: 6em" value="103"></p>
 
 		<p id="check2"></p>
@@ -205,15 +205,18 @@
 
 	function pause() {
 		var elem = document.getElementById("pause_play_button");
-		if (!animPaused) {
-			elem.value = "Play";
-			animate = clearTimeout(animate);
-			animPaused = true;
-		} else if (animPaused) {
-			elem.value = "Pause";
-			animate = setTimeout(orbitBody, 30);
-			animPaused = false;
+		if(!startTriggered){
+			if (!animPaused) {
+				elem.value = "Play";
+				animate = clearTimeout(animate);
+				animPaused = true;
+			} else if (animPaused) {
+				elem.value = "Pause";
+				animate = setTimeout(orbitBody, 30);
+				animPaused = false;
+			}
 		}
+		
 	}
 
 	function display() {
@@ -221,6 +224,7 @@
 		var elem = document.getElementById("pause_play_button");
 		elem.value = "Pause";
 		//var star_mass = document.getElementById("sm").value;
+		sm = document.getElementById("sm").value; //take input as mass ratio
 		e = [];
 		orbitPeriod = [];
 		arg = [];
@@ -303,7 +307,7 @@
 
 	//calculate a
 	function calculate_a(ecc, oP,aFactor) {
-		star_mass = (1.989)*(10**30);	//kg
+		star_mass = sm*(1.989)*(10**30);	//kg
 		var G = (6.673)*(10**-11);	//Nm^2/kg^2
 		var T = oP*24*3576; 	//convert period from days to seconds
 		//document.getElementById("check3").innerHTML = T;
@@ -316,7 +320,7 @@
 	}
 
 	function calculate_a_factor(ecc,oP) {
-		star_mass = (1.989)*(10**30);	//kg
+		star_mass = sm*(1.989)*(10**30);	//kg
 		var G = (6.673)*(10**-11);	//Nm^2/kg^2
 		var T = oP*24*3576; 	//convert period from days to seconds
 		//var true_a = (orbitPeriod/365.25)**(2/3);		//multiply by quantity mass ^ 1/3, where mass is (star mass/sun mass)
@@ -562,17 +566,24 @@
 		}
 		
 		for (i=0; i < p_num; i++) {
-			distp = Math.sqrt((last_x[i] - last_x[i+1])**(2) + (last_y[i] - last_y[i+1])**(2));
-			dist2=Math.sqrt(last_x[i+1]**2+last_y[i+1]**2);
-			// document.getElementById("check3").innerHTML = dist2;
-			if (distp < 0.08*dist2) {
-				ctx.beginPath();
-				ctx.moveTo(last_x[i], last_y[i]);
-				ctx.lineTo(last_x[i+1], last_y[i+1]);
-				ctx.strokeStyle = "#FF64E1"
-				ctx.stroke();
-				ctx.closePath();
+			disti=Math.sqrt(last_x[i]**2+last_y[i]**2);
+			for (j=i+1; j<p_num; j++) {
+				distj=Math.sqrt(last_x[j]**2+last_y[j]**2);
+				distp = Math.sqrt((last_x[i] - last_x[j])**(2) + (last_y[i] - last_y[j])**(2));
+				dist2=distj;  //Math.min(disti,distj);
+				if (distp < 0.08*dist2) {
+					ctx.beginPath();
+					ctx.moveTo(last_x[i], last_y[i]);
+					ctx.lineTo(last_x[j], last_y[j]);
+					ctx.strokeStyle = "#FF64E1"
+					ctx.stroke();
+					ctx.closePath();
+				}
 			}
+			//distp = Math.sqrt((last_x[i] - last_x[i+1])**(2) + (last_y[i] - last_y[i+1])**(2));
+			//dist2=Math.sqrt(last_x[i+1]**2+last_y[i+1]**2);
+			// document.getElementById("check3").innerHTML = dist2;
+			
 		}
 		//slider bar? attached to ms in setTimeout
 		animate = setTimeout(orbitBody, 60);
@@ -584,7 +595,7 @@
         Lsun = 3.83e26;     //luminosity of our sun, units: J/s
         s = 5.67e-8;        //Stefan-Boltzmann constant, units: J m^-2 K^-4 s^-1
         A = 0.3         //planet albedo
-        T_out = 200;     //inner habitable mean temp, units: K
+        T_out = 203;     //inner habitable mean temp, units: K
         T_in = 270;    //outer habitable mean temp, units: K
         Mrat = star_mass/sun_mass;
         hz_in_m = ((Mrat/T_in)**2)*Math.sqrt((1-A)*Lsun/(16*s*Math.PI));
@@ -639,6 +650,9 @@
 	</script>
 </body>
 </html>
+
+
+
 
 
 
