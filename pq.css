@@ -12,11 +12,23 @@
   clear: both;
 }
 
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 body {
   font-family: "Lucida Console","Courier New",monospace;
   background: #000000;
   color: #ecf0f1;
-  line-height: 1.0em;
+  line-height: 0.5em;
   font-size: 75%;
 }
 .wrapper {
